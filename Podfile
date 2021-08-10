@@ -6,7 +6,7 @@ def import_pods
 #  pod 'CryptoSwift', 
   pod 'Result', '~> 3.0.0'
   pod 'libsodium', 
-#  pod 'secp256k1_ios',
+  pod 'secp256k1_ios',
 end
 
 target 'web3swift-macOS' do
