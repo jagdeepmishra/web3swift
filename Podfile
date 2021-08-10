@@ -4,7 +4,7 @@ def import_pods
   pod "PromiseKit", 
   pod 'BigInt', 
   pod 'CryptoSwift', 
-  pod 'Result', 
+  pod 'Result', '~> 3.0.0'
   pod 'libsodium', 
   pod 'secp256k1_ios',
 end
