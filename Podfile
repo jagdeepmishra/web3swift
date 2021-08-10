@@ -2,11 +2,11 @@ def import_pods
   pod 'Alamofire', '~> 4.7'
   pod 'Alamofire-Synchronous', '~> 4.0'
   pod "PromiseKit", 
-  pod 'BigInt', 
-  pod 'CryptoSwift', 
+#  pod 'BigInt', 
+#  pod 'CryptoSwift', 
   pod 'Result', '~> 3.0.0'
   pod 'libsodium', 
-  pod 'secp256k1_ios',
+#  pod 'secp256k1_ios',
 end
 
 target 'web3swift-macOS' do
