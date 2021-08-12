@@ -18,7 +18,7 @@ public extension CatchMixin {
      - Parameter policy: The default policy does not execute your handler for cancellation errors.
      - Parameter execute: The handler to execute if this promise is rejected.
      - Returns: A promise finalizer.
-     - SeeAlso: [Cancellation](http://promisekit.org/docs/)
+     - SeeAlso: [Cancellation](https://github.com/mxcl/PromiseKit/blob/master/Documentation/CommonPatterns.md#cancellation)
      */
     @discardableResult
     func `catch`(on: DispatchQueue? = conf.Q.return, flags: DispatchWorkItemFlags? = nil, policy: CatchPolicy = conf.catchPolicy, _ body: @escaping(Error) -> Void) -> PMKFinalizer {
@@ -45,8 +45,10 @@ public class PMKFinalizer {
     let pending = Guarantee<Void>.pending()
 
     /// `finally` is the same as `ensure`, but it is not chainable
-    public func finally(_ body: @escaping () -> Void) {
-        pending.guarantee.done(body)
+    public func finally(on: DispatchQueue? = conf.Q.return, flags: DispatchWorkItemFlags? = nil, _ body: @escaping () -> Void) {
+        pending.guarantee.done(on: on, flags: flags) {
+            body()
+        }
     }
 }
 
@@ -68,7 +70,7 @@ public extension CatchMixin {
      
      - Parameter on: The queue to which the provided closure dispatches.
      - Parameter body: The handler to execute if this promise is rejected.
-     - SeeAlso: [Cancellation](http://promisekit.org/docs/)
+     - SeeAlso: [Cancellation](https://github.com/mxcl/PromiseKit/blob/master/Documentation/CommonPatterns.md#cancellation)
      */
     func recover<U: Thenable>(on: DispatchQueue? = conf.Q.map, flags: DispatchWorkItemFlags? = nil, policy: CatchPolicy = conf.catchPolicy, _ body: @escaping(Error) throws -> U) -> Promise<T> where U.T == T {
         let rp = Promise<U.T>(.pending)
@@ -101,7 +103,7 @@ public extension CatchMixin {
      - Note it is logically impossible for this to take a `catchPolicy`, thus `allErrors` are handled.
      - Parameter on: The queue to which the provided closure dispatches.
      - Parameter body: The handler to execute if this promise is rejected.
-     - SeeAlso: [Cancellation](http://promisekit.org/docs/)
+     - SeeAlso: [Cancellation](https://github.com/mxcl/PromiseKit/blob/master/Documentation/CommonPatterns.md#cancellation)
      */
     @discardableResult
     func recover(on: DispatchQueue? = conf.Q.map, flags: DispatchWorkItemFlags? = nil, _ body: @escaping(Error) -> Guarantee<T>) -> Guarantee<T> {
@@ -183,9 +185,10 @@ public extension CatchMixin {
      Consumes the Swift unused-result warning.
      - Note: You should `catch`, but in situations where you know you don’t need a `catch`, `cauterize` makes your intentions clear.
      */
-    func cauterize() {
-        self.catch {
-            Swift.print("PromiseKit:cauterized-error:", $0)
+    @discardableResult
+    func cauterize() -> PMKFinalizer {
+        return self.catch {
+            conf.logHandler(.cauterized($0))
         }
     }
 }
@@ -200,7 +203,7 @@ public extension CatchMixin where T == Void {
      
      - Parameter on: The queue to which the provided closure dispatches.
      - Parameter body: The handler to execute if this promise is rejected.
-     - SeeAlso: [Cancellation](http://promisekit.org/docs/)
+     - SeeAlso: [Cancellation](https://github.com/mxcl/PromiseKit/blob/master/Documentation/CommonPatterns.md#cancellation)
      */
     @discardableResult
     func recover(on: DispatchQueue? = conf.Q.map, flags: DispatchWorkItemFlags? = nil, _ body: @escaping(Error) -> Void) -> Guarantee<Void> {
@@ -226,7 +229,7 @@ public extension CatchMixin where T == Void {
      
      - Parameter on: The queue to which the provided closure dispatches.
      - Parameter body: The handler to execute if this promise is rejected.
-     - SeeAlso: [Cancellation](http://promisekit.org/docs/)
+     - SeeAlso: [Cancellation](https://github.com/mxcl/PromiseKit/blob/master/Documentation/CommonPatterns.md#cancellation)
      */
     func recover(on: DispatchQueue? = conf.Q.map, flags: DispatchWorkItemFlags? = nil, policy: CatchPolicy = conf.catchPolicy, _ body: @escaping(Error) throws -> Void) -> Promise<Void> {
         let rg = Promise<Void>(.pending)
